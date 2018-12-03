@@ -29,13 +29,16 @@ parents_re = re.compile(PARENTS_RE, flags=FLAGS)
 class Variable:
     """
     A simple class to save variables into
+    If self.parents is empty then the self.table will be filled with the probabilities keyed on the domain
+    Otherwise the table is empty and the self.probabilities will be filled with dictionaries keyed on the domain in
+    dictionaries keyed on the assignments of the parents
     """
     def __init__(self, name, domain):
         self.name = name
         self.domain = domain
         self.probabilities = {}
         self.parents = []
-        self.table = ()
+        self.table = {}
 
     def get_probability(self, assignment):
         """
@@ -43,7 +46,8 @@ class Variable:
         For example, if the variable has one parent with domain ['True', 'False'], the parameter assignment should
         either look like ['True', 'True'].
         :param assignment: the assignment you want to get the probabilities for
-        :return: the probabilities for the assignment or KeyError if the assignment is not found
+        :return: the probabilities for the assignment as a dictionary keyed on the domain
+        or KeyError if the assignment is not found
         """
         key = tuple(assignment)
         if key in self.probabilities.keys():
@@ -113,12 +117,12 @@ class BayesianNetwork:
                 var.parents = parents
                 for val in values:
                     key = tuple([v.strip() for v in val[0].split(',')])
-                    prob = tuple([float(v.strip()) for v in val[1].split(',')])
-                    var.probabilities[key] = prob
+                    prob = [float(v.strip()) for v in val[1].split(',')]
+                    var.probabilities[key] = dict(zip(var.domain, prob))
             else:
                 value = table_re.match(_probabilities)
                 var = self.get_variable(_name)
-                var.table = tuple(float(v.strip()) for v in value.group(1).split(','))
+                var.table = dict(zip(var.domain, [float(v.strip()) for v in value.group(1).split(',')]))
 
     def get_variable(self, name):
         """
@@ -132,4 +136,8 @@ class BayesianNetwork:
 
 
 # bn = BayesianNetwork(file='earthquake.bif')  # example usage for the supplied earthquake.bif file
-# print(bn.get_variable('JohnCalls').get_probability(['True'])[0])
+# for v in bn.variables:
+#     if v.parents:
+#         print(v.probabilities)
+#     else:
+#         print(v.table)
