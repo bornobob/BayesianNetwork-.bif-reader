@@ -29,16 +29,15 @@ parents_re = re.compile(PARENTS_RE, flags=FLAGS)
 class Variable:
     """
     A simple class to save variables into
-    If self.parents is empty then the self.table will be filled with the probabilities keyed on the domain
-    Otherwise the table is empty and the self.probabilities will be filled with dictionaries keyed on the domain in
-    dictionaries keyed on the assignments of the parents
+    If self.parents is empty then the self.probabilities will be filled with the probabilities keyed on the domain
+    Otherwise the self.probabilities will be filled with dictionaries keyed on the domain in dictionaries keyed on the
+    assignments of the parents
     """
     def __init__(self, name, domain):
         self.name = name
         self.domain = domain
         self.probabilities = {}
         self.parents = []
-        self.table = {}
 
     def get_probability(self, assignment):
         """
@@ -122,7 +121,7 @@ class BayesianNetwork:
             else:
                 value = table_re.match(_probabilities)
                 var = self.get_variable(_name)
-                var.table = dict(zip(var.domain, [float(v.strip()) for v in value.group(1).split(',')]))
+                var.probabilities = dict(zip(var.domain, [float(v.strip()) for v in value.group(1).split(',')]))
 
     def get_variable(self, name):
         """
@@ -137,7 +136,4 @@ class BayesianNetwork:
 
 # bn = BayesianNetwork(file='earthquake.bif')  # example usage for the supplied earthquake.bif file
 # for v in bn.variables:
-#     if v.parents:
-#         print(v.probabilities)
-#     else:
-#         print(v.table)
+#     print(v.probabilities)
